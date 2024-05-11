@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - ./docker/postgres/setup.sql:/docker-entrypoint-initdb.d/setup.sql
+    environment:
+      - POSTGRES_DB=librarysystem
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=librarysystem
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+      - ./pom.xml:/app/pom.xml
+    command: mvn clean spring-boot:run
